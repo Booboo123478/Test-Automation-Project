@@ -78,6 +78,7 @@ export const authSignup = (username, email, password1, password2) => {
         dispatch(checkAuthTimeout(3600));
       })
       .catch(err => {
+        console.error("Registration error:", err.response?.data);
         dispatch(authFail(err));
       });
   };

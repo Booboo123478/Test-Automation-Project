@@ -18,6 +18,9 @@ CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
 )
 
+# Ajout de la configuration pour CORS - MA
+CORS_ALLOW_CREDENTIALS = True
+
 # Stripe
 
 STRIPE_PUBLIC_KEY = config('STRIPE_TEST_PUBLIC_KEY')
