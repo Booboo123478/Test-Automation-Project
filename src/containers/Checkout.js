@@ -26,7 +26,8 @@ import {
   checkoutURL,
   orderSummaryURL,
   addCouponURL,
-  addressListURL
+  addressListURL,
+  STRIPE_PUBLISHABLE_KEY
 } from "../constants";
 
 const OrderPreview = props => {
@@ -352,7 +353,7 @@ const InjectedForm = withRouter(injectStripe(CheckoutForm));
 
 const WrappedForm = () => (
   <Container text>
-    <StripeProvider apiKey="">
+    <StripeProvider apiKey={STRIPE_PUBLISHABLE_KEY}>
       <div>
         <h1>Complete your order</h1>
         <Elements>

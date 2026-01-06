@@ -20,3 +20,6 @@ export const addressDeleteURL = id => `${endpoint}/addresses/${id}/delete/`;
 export const orderItemDeleteURL = id => `${endpoint}/order-items/${id}/delete/`;
 export const orderItemUpdateQuantityURL = `${endpoint}/order-item/update-quantity/`;
 export const paymentListURL = `${endpoint}/payments/`;
+
+// Stripe Configuration
+export const STRIPE_PUBLISHABLE_KEY = "pk_test_51SmABDAdZOH9W0hoehmf8qu7snJnpmpFyngKhvmmYrEtP7N7VVtZKyI4zblSzBtJN6VcfaDzeRgOVTUT55LWKz3U00TiIz2JZm";

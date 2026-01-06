@@ -206,5 +206,6 @@ class PaymentSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'amount',
-            'timestamp'
+            'timestamp',
+            'stripe_charge_id'
         )
