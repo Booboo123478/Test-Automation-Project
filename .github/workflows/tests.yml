@@ -55,6 +55,8 @@ jobs:
       run: python manage.py migrate
       env:
         DJANGO_SETTINGS_MODULE: home.settings.dev
+        STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
+        STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
 
   # Stage 2: Unit Tests
   unit-tests:
@@ -81,6 +83,8 @@ jobs:
       continue-on-error: true
       env:
         DJANGO_SETTINGS_MODULE: home.settings.dev
+        STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
+        STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
     
     - name: Generate unit test report
       if: always()
@@ -89,6 +93,8 @@ jobs:
       continue-on-error: true
       env:
         DJANGO_SETTINGS_MODULE: home.settings.dev
+        STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
+        STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
     
     - name: Upload unit test results
       if: always()
@@ -121,6 +127,8 @@ jobs:
       run: pytest -m api -v --tb=short
       env:
         DJANGO_SETTINGS_MODULE: home.settings.dev
+        STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
+        STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
     
     - name: Generate API test report
       if: always()
@@ -128,6 +136,8 @@ jobs:
         pytest -m api --junitxml=test-results/api-tests.xml
       env:
         DJANGO_SETTINGS_MODULE: home.settings.dev
+        STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
+        STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
     
     - name: Upload API test results
       if: always()
@@ -174,6 +184,8 @@ jobs:
         sleep 5
       env:
         DJANGO_SETTINGS_MODULE: home.settings.dev
+        STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
+        STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
     
     - name: Start React server
       run: |
@@ -184,6 +196,8 @@ jobs:
       run: pytest -m ui -v --tb=short
       env:
         DJANGO_SETTINGS_MODULE: home.settings.dev
+        STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
+        STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
     
     - name: Generate UI test report
       if: always()
@@ -191,6 +205,8 @@ jobs:
         pytest -m ui --junitxml=test-results/ui-tests.xml
       env:
         DJANGO_SETTINGS_MODULE: home.settings.dev
+        STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
+        STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
     
     - name: Upload UI test results
       if: always()
@@ -232,12 +248,16 @@ jobs:
         pytest --cov=core --cov-report=xml --cov-report=html --cov-report=term-missing
       env:
         DJANGO_SETTINGS_MODULE: home.settings.dev
+        STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
+        STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
     
     - name: Generate test metrics
       run: |
         python metrics_tracker.py || echo "Metrics generation completed"
       env:
         DJANGO_SETTINGS_MODULE: home.settings.dev
+        STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
+        STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
     
     - name: Upload test metrics
       uses: actions/upload-artifact@v3
