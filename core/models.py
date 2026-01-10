@@ -43,6 +43,7 @@ class Item(models.Model):
     slug = models.SlugField()
     description = models.TextField()
     image = models.ImageField()
+    stock_quantity = models.IntegerField(default=0)
 
     def __str__(self):
         return self.title
@@ -61,6 +62,51 @@ class Item(models.Model):
         return reverse("core:remove-from-cart", kwargs={
             'slug': self.slug
         })
+    
+    # =============================================================================
+    # TDD GREEN CYCLE - Feature 1: Product Stock Management
+    # Tests: test_tdd_feature1_stock.py & test_tdd_feature1_refactor.py
+    # =============================================================================
+    
+    def is_in_stock(self):
+        """Check if item is in stock
+        TDD: test_item_is_in_stock_method, test_item_is_out_of_stock
+        """
+        return self.stock_quantity > 0
+    
+    def can_fulfill(self, quantity):
+        """Check if requested quantity can be fulfilled
+        TDD: test_can_fulfill_quantity_method
+        """
+        return self.stock_quantity >= quantity
+    
+    def reduce_stock(self, quantity):
+        """Reduce stock by quantity
+        TDD: test_reduce_stock_method, test_cannot_reduce_stock_below_zero
+        Raises ValueError if insufficient stock
+        """
+        if quantity > self.stock_quantity:
+            raise ValueError("Insufficient stock available")
+        self.stock_quantity -= quantity
+        self.save()
+    
+    def increase_stock(self, quantity):
+        """Increase stock by quantity (restocking)
+        TDD: test_increase_stock_restocking
+        """
+        self.stock_quantity += quantity
+        self.save()
+    
+    def get_stock_status(self):
+        """Get stock status category
+        TDD: test_stock_status_categories
+        Returns: 'OUT_OF_STOCK', 'LOW_STOCK', or 'IN_STOCK'
+        """
+        if self.stock_quantity == 0:
+            return 'OUT_OF_STOCK'
+        elif self.stock_quantity <= 5:
+            return 'LOW_STOCK'
+        return 'IN_STOCK'
 
 
 class Variation(models.Model):
@@ -151,13 +197,90 @@ class Order(models.Model):
     def __str__(self):
         return self.user.username
 
-    def get_total(self):
-        total = 0
+    # =============================================================================
+    # TDD GREEN CYCLE - Feature 2 & 3: Order Totals & Cart Management
+    # Tests: test_tdd_feature2_*.py & test_tdd_feature3_*.py
+    # =============================================================================
+
+    def get_subtotal(self):
+        """Get order subtotal before discounts
+        TDD: test_order_total_with_percentage_coupon, test_order_total_with_fixed_coupon
+        """
+        from decimal import Decimal
+        total = Decimal('0')
         for order_item in self.items.all():
-            total += order_item.get_final_price()
-        if self.coupon:
-            total -= self.coupon.amount
+            total += Decimal(str(order_item.get_final_price()))
         return total
+
+    def get_total(self):
+        """Get order total with coupon discount applied
+        TDD: test_order_total_with_percentage_coupon, test_coupon_cannot_exceed_order_total
+        """
+        from decimal import Decimal
+        total = self.get_subtotal()
+        
+        if self.coupon:
+            # Use new coupon system if available
+            if hasattr(self.coupon, 'discount_type'):
+                discount = self.coupon.calculate_discount(total)
+                total -= discount
+            else:
+                # Fallback to old amount field
+                total -= Decimal(str(self.coupon.amount))
+        
+        # Ensure total is not negative
+        if total < Decimal('0'):
+            total = Decimal('0')
+        
+        return total
+    
+    # =============================================================================
+    # TDD GREEN CYCLE - Feature 3: Smart Cart Item Merging
+    # Tests: test_tdd_feature3_cart.py & test_tdd_feature3_refactor.py
+    # =============================================================================
+    
+    def add_to_cart(self, item, quantity=1):
+        """Add item to cart or update quantity if exists
+        TDD: test_adding_same_item_increases_quantity, test_cart_prevents_negative_quantities
+        """
+        if quantity <= 0:
+            raise ValueError("Quantity must be positive")
+        
+        if not item.can_fulfill(quantity):
+            raise ValueError(f"Insufficient stock available. Only {item.stock_quantity} in stock.")
+        
+        # Check if item already in cart
+        order_item_qs = self.items.filter(item=item, ordered=False)
+        if order_item_qs.exists():
+            order_item = order_item_qs.first()
+            order_item.quantity += quantity
+            order_item.save()
+        else:
+            order_item = OrderItem.objects.create(
+                user=self.user,
+                item=item,
+                quantity=quantity,
+                ordered=False
+            )
+            self.items.add(order_item)
+    
+    def remove_from_cart(self, item):
+        """Remove item completely from cart
+        TDD: test_order_has_remove_from_cart_method
+        """
+        order_item_qs = self.items.filter(item=item, ordered=False)
+        if order_item_qs.exists():
+            order_item = order_item_qs.first()
+            self.items.remove(order_item)
+            order_item.delete()
+    
+    def clear_cart(self):
+        """Remove all items from cart
+        TDD: test_clear_cart_removes_all_items
+        """
+        for order_item in self.items.filter(ordered=False):
+            order_item.delete()
+        self.items.clear()
 
 
 class Address(models.Model):
@@ -188,12 +311,78 @@ class Payment(models.Model):
         return self.user.username
 
 
+# =============================================================================
+# TDD GREEN CYCLE - Feature 2: Enhanced Coupon System
+# Tests: test_tdd_feature2_coupons.py & test_tdd_feature2_refactor.py
+# =============================================================================
+
 class Coupon(models.Model):
+    DISCOUNT_TYPE_CHOICES = (
+        ('fixed', 'Fixed Amount'),
+        ('percentage', 'Percentage'),
+    )
+    
     code = models.CharField(max_length=15)
-    amount = models.FloatField()
+    amount = models.FloatField()  # Keep for backwards compatibility
+    discount_type = models.CharField(max_length=10, choices=DISCOUNT_TYPE_CHOICES, default='fixed')
+    discount_value = models.FloatField(default=0)
+    minimum_order_amount = models.FloatField(default=0.0)
+    expiry_date = models.DateTimeField(blank=True, null=True)
+    max_uses = models.IntegerField(blank=True, null=True)
+    current_uses = models.IntegerField(default=0)
 
     def __str__(self):
         return self.code
+    
+    def calculate_discount(self, order_total):
+        """Calculate discount amount based on type
+        TDD: test_percentage_coupon_calculation, test_fixed_amount_coupon_calculation
+        Supports both percentage and fixed amount discounts
+        """
+        from decimal import Decimal
+        order_total = Decimal(str(order_total))
+        
+        if self.discount_type == 'percentage':
+            discount = order_total * (Decimal(str(self.discount_value)) / Decimal('100'))
+        else:  # fixed
+            discount = Decimal(str(self.discount_value))
+        
+        # Ensure discount doesn't exceed order total
+        if discount > order_total:
+            discount = order_total
+        
+        return discount
+    
+    def is_valid_for_amount(self, amount):
+        """Check if order amount meets minimum requirement
+        TDD: test_coupon_minimum_order_requirement
+        """
+        from decimal import Decimal
+        return Decimal(str(amount)) >= Decimal(str(self.minimum_order_amount))
+    
+    def is_active(self):
+        """Check if coupon is active (not expired)
+        TDD: test_coupon_expiration_date, test_expired_coupon_validation
+        """
+        if self.expiry_date is None:
+            return True
+        from django.utils import timezone
+        return timezone.now() <= self.expiry_date
+    
+    def can_be_used(self):
+        """Check if coupon has usage remaining
+        TDD: test_coupon_usage_limit, test_coupon_usage_tracking_and_limits
+        """
+        if self.max_uses is None:
+            return True
+        return self.current_uses < self.max_uses
+    
+    def increment_usage(self):
+        """Increment usage counter
+        TDD: test_coupon_usage_tracking_and_limits
+        """
+        self.current_uses += 1
+        self.save()
 
 
 class Refund(models.Model):

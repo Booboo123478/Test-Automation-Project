@@ -296,15 +296,3 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         MINIMUM_GREEN: 70
         MINIMUM_ORANGE: 50
-
-  notify:
-    name: Notification
-    needs: [unit-tests, integration-tests, ui-tests, test-report]
-    runs-on: ubuntu-latest
-    if: failure()
-    
-    steps:
-    - name: Notification on failure
-      run: |
-        echo "Pipeline failed!"
-        echo "Check the test results for details."
