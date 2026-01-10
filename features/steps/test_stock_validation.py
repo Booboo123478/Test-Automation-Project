@@ -80,9 +80,11 @@ def attempt_add_to_cart_out_of_stock(context):
             context['cart_add_failed'] = True
         else:
             # Create order and add item
+            from django.utils import timezone
             order, created = Order.objects.get_or_create(
                 user=user,
-                ordered=False
+                ordered=False,
+                defaults={'ordered_date': timezone.now()}
             )
             order_item, created = OrderItem.objects.get_or_create(
                 item=product,
@@ -104,9 +106,11 @@ def add_units_to_cart(quantity, context):
     user = context['user']
     
     if product.is_in_stock() and product.can_fulfill(quantity):
+        from django.utils import timezone
         order, created = Order.objects.get_or_create(
             user=user,
-            ordered=False
+            ordered=False,
+            defaults={'ordered_date': timezone.now()}
         )
         order_item, created = OrderItem.objects.get_or_create(
             item=product,

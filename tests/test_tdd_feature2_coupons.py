@@ -33,7 +33,8 @@ class TestCouponSystem:
             code='SAVE20',
             discount_type='percentage',
             discount_value=20,
-            minimum_order_amount=Decimal('50.00')
+            minimum_order_amount=Decimal('50.00'),
+            amount=0
         )
         assert coupon.discount_type == 'percentage'
         assert coupon.discount_value == 20
@@ -45,7 +46,8 @@ class TestCouponSystem:
             code='SAVE20',
             discount_type='percentage',
             discount_value=20,
-            minimum_order_amount=Decimal('0.00')
+            minimum_order_amount=Decimal('0.00'),
+            amount=0
         )
         
         order_total = Decimal('100.00')
@@ -57,7 +59,8 @@ class TestCouponSystem:
             code='SAVE10',
             discount_type='fixed',
             discount_value=10,
-            minimum_order_amount=Decimal('0.00')
+            minimum_order_amount=Decimal('0.00'),
+            amount=0
         )
         discount_fixed = fixed_coupon.calculate_discount(order_total)
         assert discount_fixed == Decimal('10.00')

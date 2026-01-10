@@ -47,7 +47,8 @@ class TestCouponSystemRefactored:
             discount_type='percentage',
             discount_value=25,
             minimum_order_amount=Decimal('50.00'),
-            expiry_date=timezone.now() + timedelta(days=30)
+            expiry_date=timezone.now() + timedelta(days=30),
+            amount=0
         )
     
     def test_expired_coupon_validation(self, user, item_50):
@@ -60,7 +61,8 @@ class TestCouponSystemRefactored:
             discount_type='percentage',
             discount_value=30,
             minimum_order_amount=Decimal('0.00'),
-            expiry_date=timezone.now() - timedelta(days=1)
+            expiry_date=timezone.now() - timedelta(days=1),
+            amount=0
         )
         
         assert expired_coupon.is_active() is False
@@ -73,7 +75,8 @@ class TestCouponSystemRefactored:
             discount_value=15,
             minimum_order_amount=Decimal('0.00'),
             max_uses=3,
-            current_uses=0
+            current_uses=0,
+            amount=0
         )
         
         # Should allow usage

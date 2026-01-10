@@ -33,7 +33,8 @@ def create_cart_with_value(amount, context, customer_user, db):
     """Create a cart with items totaling the given amount"""
     order = Order.objects.create(
         user=customer_user,
-        ordered=False
+        ordered=False,
+        ordered_date=timezone.now()
     )
     
     item = Item.objects.create(
@@ -65,7 +66,8 @@ def create_fixed_coupon(code, discount, context, db):
     coupon = Coupon.objects.create(
         code=code,
         discount_type='fixed',
-        discount_value=discount
+        discount_value=discount,
+        amount=0
     )
     context['coupon'] = coupon
 
@@ -76,7 +78,8 @@ def create_percentage_coupon(code, discount, context, db):
     coupon = Coupon.objects.create(
         code=code,
         discount_type='percentage',
-        discount_value=discount
+        discount_value=discount,
+        amount=0
     )
     context['coupon'] = coupon
 
@@ -88,7 +91,8 @@ def create_coupon_with_minimum(code, discount, minimum, context, db):
         code=code,
         discount_type='fixed',
         discount_value=discount,
-        minimum_order_amount=minimum
+        minimum_order_amount=minimum,
+        amount=0
     )
     context['coupon'] = coupon
 
@@ -101,7 +105,8 @@ def create_expired_coupon(code, discount, context, db):
         code=code,
         discount_type='fixed',
         discount_value=discount,
-        expiry_date=expired_date
+        expiry_date=expired_date,
+        amount=0
     )
     context['coupon'] = coupon
 
@@ -114,7 +119,8 @@ def create_coupon_max_uses(code, max_uses, current_uses, context, db):
         discount_type='fixed',
         discount_value=10.0,
         max_uses=max_uses,
-        current_uses=current_uses
+        current_uses=current_uses,
+        amount=0
     )
     context['coupon'] = coupon
 
@@ -124,7 +130,8 @@ def coupon_already_applied(code, discount, context, customer_user, db):
     """Create order with coupon already applied"""
     order = Order.objects.create(
         user=customer_user,
-        ordered=False
+        ordered=False,
+        ordered_date=timezone.now()
     )
     
     item = Item.objects.create(
@@ -148,7 +155,8 @@ def coupon_already_applied(code, discount, context, customer_user, db):
     coupon = Coupon.objects.create(
         code=code,
         discount_type='fixed',
-        discount_value=discount
+        discount_value=discount,
+        amount=0
     )
     order.coupon = coupon
     order.save()

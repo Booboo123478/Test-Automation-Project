@@ -29,9 +29,11 @@ def cart_customer(db):
 @given("I am logged in as a customer")
 def logged_in_customer(cart_customer, context):
     """Set up a logged in customer with empty cart"""
+    from django.utils import timezone
     order, created = Order.objects.get_or_create(
         user=cart_customer,
-        ordered=False
+        ordered=False,
+        defaults={'ordered_date': timezone.now()}
     )
     context['user'] = cart_customer
     context['order'] = order

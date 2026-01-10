@@ -78,19 +78,16 @@ jobs:
         pip install -r requirements.txt
         pip install -r requirements-test.txt
     
+    - name: Create test results directory
+      run: mkdir -p test-results
+    
     - name: Run unit tests
-      run: pytest -m unit -v --tb=short || echo "No unit tests found"
+      run: pytest -m unit -v --tb=short --junitxml=test-results/unit-tests.xml
       continue-on-error: true
       env:
         DJANGO_SETTINGS_MODULE: home.settings.dev
         STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
         STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
-    
-    - name: Generate unit test report
-      if: always()
-      run: |
-        pytest -m unit --junitxml=test-results/unit-tests.xml || echo "No unit tests to report"
-      continue-on-error: true
       env:
         DJANGO_SETTINGS_MODULE: home.settings.dev
         STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
@@ -123,17 +120,12 @@ jobs:
         pip install -r requirements.txt
         pip install -r requirements-test.txt
     
-    - name: Run API tests
-      run: pytest -m api -v --tb=short
-      env:
-        DJANGO_SETTINGS_MODULE: home.settings.dev
-        STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
-        STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
+    - name: Create test results directory
+      run: mkdir -p test-results
     
-    - name: Generate API test report
-      if: always()
-      run: |
-        pytest -m api --junitxml=test-results/api-tests.xml
+    - name: Run API tests
+      run: pytest -m api -v --tb=short --junitxml=test-results/api-tests.xml
+      continue-on-error: true
       env:
         DJANGO_SETTINGS_MODULE: home.settings.dev
         STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
@@ -192,17 +184,12 @@ jobs:
         npm start &
         sleep 10
     
-    - name: Run UI tests
-      run: pytest -m ui -v --tb=short
-      env:
-        DJANGO_SETTINGS_MODULE: home.settings.dev
-        STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
-        STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
+    - name: Create test results directory
+      run: mkdir -p test-results
     
-    - name: Generate UI test report
-      if: always()
-      run: |
-        pytest -m ui --junitxml=test-results/ui-tests.xml
+    - name: Run UI tests
+      run: pytest -m ui -v --tb=short --junitxml=test-results/ui-tests.xml
+      continue-on-error: true
       env:
         DJANGO_SETTINGS_MODULE: home.settings.dev
         STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
@@ -281,13 +268,15 @@ jobs:
     
     - name: Download all test results
       uses: actions/download-artifact@v4
+      continue-on-error: true
     
     - name: Publish test results
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
       with:
         files: |
-          test-results/**/*.xml
+          **/*-test-results/*.xml
+        check_name: Test Results
     
     - name: Coverage comment
       uses: py-cov-action/python-coverage-comment-action@v3
