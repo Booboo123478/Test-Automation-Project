@@ -46,13 +46,12 @@ def main():
     
     # Count defects
     defects = failed
-    severity = "HIGH" if failed > 0 else "NONE"
     
     # Display
-    print(f"• Code coverage: {coverage_pct:.1f}%")
-    print(f"• Test execution time: {execution_time:.2f}s")
-    print(f"• Pass/fail rate: {pass_rate:.1f}% ({passed}/{total} passed)")
-    print(f"• Defects found: {defects} (Severity: {severity})")
+    print(f"Code coverage: {coverage_pct:.1f}%")
+    print(f"Test execution time: {execution_time:.2f}s")
+    print(f"Pass/fail rate: {pass_rate:.1f}% ({passed}/{total} passed)")
+    print(f"Defects found: {defects}")
 
 
 if __name__ == '__main__':
