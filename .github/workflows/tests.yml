@@ -278,10 +278,17 @@ jobs:
           ui-test-results/*.xml
         check_name: Test Results
     
-    - name: Coverage comment
-      uses: py-cov-action/python-coverage-comment-action@v3
-      if: github.event_name == 'push'
+    -   path: test-results-download
+      continue-on-error: true
+    
+    - name: List downloaded files
+      run: |
+        echo "=== Downloaded test results ==="
+        ls -R test-results-download/ || echo "No files found"
+    
+    - name: Publish test results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
       with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        MINIMUM_GREEN: 70
-        MINIMUM_ORANGE: 50
+        files: |
+          test-results-download/**
