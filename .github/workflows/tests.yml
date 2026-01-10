@@ -88,10 +88,6 @@ jobs:
         DJANGO_SETTINGS_MODULE: home.settings.dev
         STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
         STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
-      env:
-        DJANGO_SETTINGS_MODULE: home.settings.dev
-        STRIPE_TEST_PUBLIC_KEY: ${{ secrets.STRIPE_TEST_PUBLIC_KEY }}
-        STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
     
     - name: Upload unit test results
       if: always()
