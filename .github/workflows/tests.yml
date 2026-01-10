@@ -273,7 +273,9 @@ jobs:
       if: always()
       with:
         files: |
-          **/*.xml
+          unit-test-results/*.xml
+          api-test-results/*.xml
+          ui-test-results/*.xml
         check_name: Test Results
     
     - name: Coverage comment
