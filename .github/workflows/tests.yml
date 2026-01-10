@@ -98,7 +98,7 @@ jobs:
     
     - name: Upload unit test results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: unit-test-results
         path: test-results/unit-tests.xml
@@ -141,7 +141,7 @@ jobs:
     
     - name: Upload API test results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: api-test-results
         path: test-results/api-tests.xml
@@ -210,14 +210,14 @@ jobs:
     
     - name: Upload UI test results
       if: always()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ui-test-results
         path: test-results/ui-tests.xml
     
     - name: Upload screenshots on failure
       if: failure()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ui-test-screenshots
         path: screenshots/
@@ -260,7 +260,7 @@ jobs:
         STRIPE_TEST_SECRET_KEY: ${{ secrets.STRIPE_TEST_SECRET_KEY }}
     
     - name: Upload test metrics
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-metrics
         path: |
@@ -268,19 +268,19 @@ jobs:
           coverage.json
     
     - name: Upload coverage report (HTML)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-report-html
         path: htmlcov/
     
     - name: Upload coverage report (XML)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-report-xml
         path: coverage.xml
     
     - name: Download all test results
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
     
     - name: Publish test results
       uses: EnricoMi/publish-unit-test-result-action@v2
