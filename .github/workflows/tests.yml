@@ -2,7 +2,7 @@ name: Test Automation Pipeline
 
 on:
   push:
-    branches: [ master, '**' ]  # Test on all branches
+    branches: [ master ]
   schedule:
     - cron: '0 2 * * *'
   workflow_dispatch:
