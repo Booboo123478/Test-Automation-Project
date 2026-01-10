@@ -264,6 +264,8 @@ jobs:
     
     - name: Download all test results
       uses: actions/download-artifact@v4
+      with:
+        pattern: '*-test-results'
       continue-on-error: true
     
     - name: Publish test results
@@ -271,7 +273,7 @@ jobs:
       if: always()
       with:
         files: |
-          **/*-test-results/*.xml
+          **/*.xml
         check_name: Test Results
     
     - name: Coverage comment
