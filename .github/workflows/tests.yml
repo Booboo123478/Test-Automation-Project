@@ -291,7 +291,7 @@ jobs:
     
     - name: Coverage comment
       uses: py-cov-action/python-coverage-comment-action@v3
-      if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+      if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         MINIMUM_GREEN: 70
